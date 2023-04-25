@@ -1,0 +1,73 @@
+﻿@page "/"
+
+@using Smart.Blazor
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<Button OnClick="@Clicked">Click Me</Button>
+
+
+<Grid @ref="grid" DataSource="@data" Filtering="@GridFiltering" Editing="GridEditing">
+  <Columns>
+    <Column DataField="Id" Visible="false" AllowEdit="false" />
+    <Column DataField="Name" Label="Name" DisplayField="DisplayName" AllowEdit="true" Editor="editor" />
+    <Column DataField="BoolValue " Label="BoolValue" AllowEdit="true" DataType="boolean" Editor="@checkBoxEditor" Template="@checkBoxEditor"/>
+  </Columns>
+</Grid>
+
+<p>@shownNumber</p>
+
+
+@code
+{
+  Grid grid;
+  GridFiltering GridFiltering = new() { Enabled = true };
+  string checkBoxEditor = "checkBox";
+  GridEditing GridEditing = new GridEditing() { Enabled = true };
+  string shownNumber = "Button not clicked yet";
+
+
+  List<ClassName> data = new List<ClassName>() {
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = false, Name = "test1", DisplayName ="abcd"},
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = false, Name = "test2" , DisplayName ="abcd" },
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = false, Name = "test3" , DisplayName ="abcd"},
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = false, Name = "test4" , DisplayName ="abcd"},
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = true, Name = "test5" , DisplayName ="abcd"},
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = true, Name = "test6" , DisplayName ="abcd"},
+    new ClassName() { Id = Guid.NewGuid(), BoolValue = true, Name = "test7" , DisplayName ="abcd"} };
+
+    GridEditor editor = new GridEditor()
+    {
+      Template = "autoComplete",
+      Settings = new Dictionary<string, object>()
+        {
+            { "autoOpen", true },
+            {"dropDownButtonPosition", "right" }
+        },
+      OnInit = (int row, string column, object editorName, object rowData) =>
+      {
+        return new Dictionary<string, object>()
+            {
+                {"dataSource", new List<string>()
+                {
+                  "a",
+                  "b",
+                  "c"
+                }
+            }
+            };
+      }
+    };
+
+  public async void Clicked()
+  {
+    var rows = await grid.GetVisibleRows();
+    shownNumber = rows.Count().ToString();
+  }
+}
